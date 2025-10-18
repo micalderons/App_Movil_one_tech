@@ -5,7 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.one_teach.ui.screens.HomeScreen
+import com.example.one_teach.ui.screens.*
 import com.example.one_teach.viewmodel.ConfigViewModel
 import com.example.one_teach.viewmodel.PerfilViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
@@ -23,12 +23,12 @@ fun AppNavHost(nav: NavHostController) {
         composable(Route.Perfil.path){
             PerfilScreen(nav, perfilVM)
         }
-        composable(Route.Registrar.path){
-            ProductosScreen(nav, productoVM)
+        composable(Route.Register.path){
+            RegistroScreen(nav, productoVM)
         }
         composable(Route.Resumen.path){
-            ResumenScreen(nav, perfilVM)
+            ResumenScreen(nav, productoVM)
         }
     }
 
-})
+}
