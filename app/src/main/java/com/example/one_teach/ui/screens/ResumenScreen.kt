@@ -16,6 +16,7 @@ import com.example.one_teach.viewmodel.ProductoViewModel
 
 @Composable
 fun ResumenScreen(nav: NavController, vm: ProductoViewModel){
+    Text("Esta es la pantalla de Resumen")
     val ui by vm.ui.collectAsState()
     val widthClass = rememberWindowWidthClass()
 
@@ -33,7 +34,7 @@ fun ResumenScreen(nav: NavController, vm: ProductoViewModel){
             Row(modifier.fillMaxSize().padding(16.dp)){
                 Column (Modifier.weight(1f)){
                     Text("Favoritos (mock)", style = MaterialTheme.typography.titleLarge)
-                    Text("")
+                    Text("SI")
                 }
                 HorizontalDivider(
                     thickness = 1.dp,

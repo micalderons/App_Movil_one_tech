@@ -9,6 +9,7 @@ import com.example.one_teach.ui.screens.*
 import com.example.one_teach.viewmodel.ConfigViewModel
 import com.example.one_teach.viewmodel.PerfilViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
+import androidx.compose.material3.Text
 
 @Composable
 fun AppNavHost(nav: NavHostController) {

@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.one_teach.ui.components.AppScaffold
+import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.viewmodel.ConfigViewModel
 
 @Composable
