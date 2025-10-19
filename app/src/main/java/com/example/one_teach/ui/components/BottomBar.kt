@@ -54,7 +54,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
 
         NavigationBarItem(
             selected = currentRoute == Route.Resumen.path,
-            onClick = { /* TODO */ },
+            onClick = { navController.navigate(Route.Resumen.path) },
             icon = { Icon(Icons.Filled.ShoppingCart, contentDescription = "Carrito") },
             label = { Text("Carrito") },
             colors = NavigationBarItemDefaults.colors(

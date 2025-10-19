@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.one_teach.ui.screens.HomeScreen
 import com.example.one_teach.ui.screens.ResumenScreen
+import com.example.one_teach.ui.screens.cart.CartScreen
 import com.example.one_teach.ui.screens.login.LoginScreen
 import com.example.one_teach.ui.screens.perfil.PerfilEntryScreen
 import com.example.one_teach.ui.screens.profile.ProfileScreen
@@ -73,6 +74,9 @@ fun AppNavHost(nav: NavHostController) {
             } else {
                 ProfileScreen(nav, profileVM)
             }
+        }
+        composable(Route.Resumen.path){
+            CartScreen(nav = nav, vm = productoVM)
         }
     }
 }
