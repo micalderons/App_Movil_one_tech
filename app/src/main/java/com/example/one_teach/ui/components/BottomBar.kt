@@ -2,8 +2,6 @@ package com.example.one_teach.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.one_teach.navigation.Route
 import androidx.compose.material.icons.Icons
@@ -12,23 +10,22 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 @Composable
-fun BottomBar(navController: NavController, currentRoute: String?) {
-
+fun BottomBar(
+    navController: NavController,
+    currentRoute: String?,
+    onMoreClick: (() -> Unit)? = null   // <— NUEVO: opcional para abrir el sheet
+) {
     NavigationBar(
-        containerColor = Color(0xFF283593), // tu azul principal
+        containerColor = Color(0xFF283593),
         tonalElevation = 4.dp
     ) {
-
         NavigationBarItem(
             selected = currentRoute == Route.Home.path,
-            onClick = {
-                navController.navigate(Route.Home.path) {
-                    launchSingleTop = true
-                    popUpTo(Route.Home.path) { inclusive = false }
-                }
-            },
+            onClick = { navController.navigate(Route.Home.path) },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
             colors = NavigationBarItemDefaults.colors(
@@ -37,8 +34,6 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
-
-
         NavigationBarItem(
             selected = currentRoute == Route.Buscar.path,
             onClick = { navController.navigate(Route.Buscar.path) },
@@ -50,8 +45,6 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
-
-
         NavigationBarItem(
             selected = currentRoute == Route.Resumen.path,
             onClick = { navController.navigate(Route.Resumen.path) },
@@ -63,16 +56,9 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
-
-
         NavigationBarItem(
             selected = currentRoute == Route.Perfil.path,
-            onClick = {
-
-                navController.navigate(Route.Perfil.path) {
-                    launchSingleTop = true
-                }
-            },
+            onClick = { navController.navigate(Route.Perfil.path) },
             icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
             label = { Text("Perfil") },
             colors = NavigationBarItemDefaults.colors(
@@ -81,11 +67,15 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
-
-
         NavigationBarItem(
             selected = currentRoute == Route.Mas.path,
-            onClick = { /* TODO */ },
+            onClick = {
+                navController.navigate(Route.Mas.path) {
+                    launchSingleTop = true
+                    popUpTo(Route.Root.path) { saveState = true }
+                    restoreState = true
+                }
+            },
             icon = { Icon(Icons.Filled.Menu, contentDescription = "Más") },
             label = { Text("Más") },
             colors = NavigationBarItemDefaults.colors(
@@ -94,7 +84,6 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
-
 
     }
 }

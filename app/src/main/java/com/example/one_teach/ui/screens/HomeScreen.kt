@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
+import com.example.one_teach.ui.components.MoreMenu
 import com.example.one_teach.ui.components.ProductCard
 import com.example.one_teach.viewmodel.ConfigViewModel
 import com.example.one_teach.viewmodel.HomeViewModel
@@ -36,11 +37,11 @@ fun HomeScreen(
     val modo by configVM.modoVendedor.collectAsState(initial = false)
     val cart by carritoVM.cart.collectAsState()
 
-    // Snackbar
+
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Estado del bottom sheet (producto seleccionado y visibilidad)
+
     var selectedProductId by remember { mutableStateOf<String?>(null) }
     val selectedProduct = products.firstOrNull { it.id == selectedProductId }
 
@@ -48,12 +49,8 @@ fun HomeScreen(
         nav = navController,
         tittle = "ONE-TECH",
         snackbarHostState = snackbarHost,
-        bottomBar = {
-            BottomBar(
-                navController = navController,
-                currentRoute = Route.Home.path
-            )
-        }
+        bottomBar = { BottomBar(navController = navController, currentRoute = Route.Home.path) },
+        actions = { MoreMenu(navController) } //
     ) { innerModifier ->
 
         Column(

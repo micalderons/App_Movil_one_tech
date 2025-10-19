@@ -15,6 +15,11 @@ import com.example.one_teach.ui.screens.registro.RegistrationScreen
 import com.example.one_teach.ui.screens.search.SearchScreen
 import com.example.one_teach.ui.utils.PlaceholderScreen
 import com.example.one_teach.viewmodel.*
+import com.example.one_teach.ui.screens.reviews.ReviewsScreen
+import com.example.one_teach.ui.screens.policies.PoliciesScreen
+import com.example.one_teach.ui.screens.settings.SettingsScreen
+import com.example.one_teach.ui.screens.about.AboutScreen
+
 
 @Composable
 fun AppNavHost(nav: NavHostController) {
@@ -77,6 +82,25 @@ fun AppNavHost(nav: NavHostController) {
         }
         composable(Route.Resumen.path){
             CartScreen(nav = nav, vm = productoVM)
+        }
+        composable(Route.Reviews.path) {
+            ReviewsScreen(nav = nav, homeVM = homeVM)
+        }
+        composable(Route.Policies.path) {
+            PoliciesScreen(nav = nav)
+        }
+        composable(Route.Settings.path) {
+            SettingsScreen(nav = nav)
+        }
+        composable(Route.About.path) {
+            AboutScreen(nav = nav)
+        }
+        composable(Route.Mas.path){
+            PlaceholderScreen(
+                nav=nav,
+                tittle = "Más",
+                message = "Más próximamente"
+            )
         }
     }
 }

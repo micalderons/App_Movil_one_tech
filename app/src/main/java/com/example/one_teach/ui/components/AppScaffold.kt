@@ -13,7 +13,7 @@ import androidx.navigation.NavController
 fun AppScaffold(
     nav: NavController,
     tittle: String,
-    bottomBar: @Composable (() -> Unit)? = null,
+    bottomBar: @Composable () -> Unit = {},
     snackbarHostState: SnackbarHostState? = null,
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable (Modifier) -> Unit
