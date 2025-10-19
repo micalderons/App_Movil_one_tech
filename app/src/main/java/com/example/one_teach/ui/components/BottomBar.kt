@@ -23,7 +23,12 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
         // Botón Inicio
         NavigationBarItem(
             selected = currentRoute == Route.Home.path,
-            onClick = { navController.navigate(Route.Home.path) },
+            onClick = {
+                navController.navigate(Route.Home.path) {
+                    launchSingleTop = true
+                    popUpTo(Route.Home.path) { inclusive = false }
+                }
+            },
             icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
             colors = NavigationBarItemDefaults.colors(
@@ -62,7 +67,12 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
         // Botón Perfil
         NavigationBarItem(
             selected = currentRoute == Route.Perfil.path,
-            onClick = { /* TODO */ },
+            onClick = {
+
+                navController.navigate(Route.Perfil.path) {
+                    launchSingleTop = true
+                }
+            },
             icon = { Icon(Icons.Filled.Person, contentDescription = "Perfil") },
             label = { Text("Perfil") },
             colors = NavigationBarItemDefaults.colors(

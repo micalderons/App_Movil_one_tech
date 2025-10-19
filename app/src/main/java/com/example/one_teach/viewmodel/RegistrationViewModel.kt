@@ -5,6 +5,7 @@ import com.example.one_teach.ui.utils.*
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.example.one_teach.ui.utils.*
 
 data class RegistrationUiState(
     val fullName: String = "",

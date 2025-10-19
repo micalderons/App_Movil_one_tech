@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -68,12 +69,15 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.6")
     implementation("androidx.navigation:navigation-compose:2.8.2")
     implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.compose.material3:material3:1.3.0")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("io.coil-kt:coil-compose:2.7.0")
 
 
-    // Otras dependencias que ya tengas...
 
 
+
+    implementation("androidx.compose.foundation:foundation:1.7.3")
 
 
     // Tests

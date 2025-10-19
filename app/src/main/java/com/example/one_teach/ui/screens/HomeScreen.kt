@@ -21,6 +21,10 @@ import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.ui.components.ProductCard
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.runtime.getValue
+import com.example.one_teach.viewmodel.ProfilesViewModel
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,20 +37,41 @@ fun HomeScreen(
     val categories by homeViewModel.categories.collectAsState(initial = emptyList())
     val selectedCategory by homeViewModel.selectedCategory.collectAsState()
     val modo by configVM.modoVendedor.collectAsState(initial = false)
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val hasUser by viewModel<ProfilesViewModel>().users.collectAsState(initial = emptyList())
+    val profilesVM: ProfilesViewModel = viewModel()
+    val users by profilesVM.users.collectAsState()
 
     AppScaffold(
         nav = navController,
         tittle = "ONE-TECH",
-        bottomBar = {
-            BottomBar(
-                navController = navController,
-                currentRoute = Route.Home.path    // ← marca “Inicio” como seleccionado
+        actions = {
+            if (users.isEmpty()) {
+                TextButton(onClick = { navController.navigate(Route.Register.path) }) {
+                    Text("Registrarte / Iniciar sesión",
+                        color = MaterialTheme.colorScheme.onPrimary)
+                }
+            }
+        },
+        bottomBar = { BottomBar(navController = navController, currentRoute = currentRoute) }
+    ) { inner ->
+        TopAppBar(
+            title = { Text("ONE-TECH") },
+            actions = {
+                if (hasUser.isEmpty()) {
+                    TextButton(onClick = { navController.navigate(Route.Register.path) }) {
+                        Text("Registrarte / Iniciar sesión", color = MaterialTheme.colorScheme.onPrimary)
+                    }
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                titleContentColor = MaterialTheme.colorScheme.onPrimary
             )
-        }
-    ) { innerModifier ->
+        )
 
         Column(
-            modifier = innerModifier
+            modifier = inner
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {

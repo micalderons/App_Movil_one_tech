@@ -11,7 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.one_teach.navigation.Route
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.ui.utils.WindowWidth
@@ -26,6 +26,9 @@ fun ResumenScreen(nav: NavController, vm: ProductoViewModel) {
     val widthClass = rememberWindowWidthClass()
     val cart by vm.cart.collectAsState()
     val total = cart.sumOf { it.price * it.qty }
+    val currentRoute = nav.currentBackStackEntryAsState().value?.destination?.route
+
+
 
     val money = remember {
         NumberFormat.getCurrencyInstance(Locale("es", "CL")).apply {
@@ -37,7 +40,7 @@ fun ResumenScreen(nav: NavController, vm: ProductoViewModel) {
     AppScaffold(
         nav = nav,
         tittle = "Resumen",
-        bottomBar = { BottomBar(navController = nav, currentRoute = Route.Resumen.path) }
+        bottomBar = { BottomBar(navController = nav, currentRoute = currentRoute) }
     ) { modifier ->
 
         if (widthClass == WindowWidth.Compact) {
