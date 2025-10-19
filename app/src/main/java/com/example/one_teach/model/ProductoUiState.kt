@@ -1,10 +1,12 @@
 package com.example.one_teach.model
+import androidx.annotation.DrawableRes
 
 data class ProductoUiState (
-    val nombre: String = "",
-    val precio: String = "",
-    val descripcion: String = "",
-    val stock : String = "",
-    val acepta: Boolean= false,
-    val errores: Map<String, String> = emptyMap()
+    val id: String,
+    val category: String,
+    val name: String,
+    val price: Int,
+    val description: String,
+    @DrawableRes val image: Int,
+    val reviews: List<Review> = emptyList()
 )

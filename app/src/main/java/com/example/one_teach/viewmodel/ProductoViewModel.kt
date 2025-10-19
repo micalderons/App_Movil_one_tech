@@ -1,35 +1,48 @@
+// ProductoViewModel.kt
 package com.example.one_teach.viewmodel
+
 import androidx.lifecycle.ViewModel
-import com.example.one_teach.model.ProductoUiState
+import androidx.lifecycle.viewModelScope
+import com.example.one_teach.model.CartItem
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class ProductoViewModel: ViewModel() {
-    private val _ui = MutableStateFlow(ProductoUiState())
-    val ui = _ui.asStateFlow()
+class ProductoViewModel : ViewModel() {
 
-    fun onNombre(s: String) = _ui.update { it.copy(nombre = s) }
-    fun onPrecio(s: String) = _ui.update { it.copy(precio = s) }
-    fun onDescripcion(s: String) = _ui.update { it.copy(descripcion = s) }
-    fun onStock(s: String) = _ui.update { it.copy(stock = s) }
-    fun onAcepta(b: Boolean) = _ui.update { it.copy(acepta = b) }
+    private val _cart = MutableStateFlow<List<CartItem>>(emptyList())
+    val cart: StateFlow<List<CartItem>> = _cart
 
-    fun valiar(): Boolean{
-        val errs = mutableMapOf<String, String>()
-        if (ui.value.nombre.isBlank()) errs["nombre"] = "Campo requerido"
-        val precio = ui.value.precio.toDoubleOrNull()
-        if (precio == null || precio <= 0) errs["precio"] = "Precio invalido"
-        if (ui.value.descripcion.length <10) errs["descripcion"] = "Descripcion invalida"
-        val stock = ui.value.stock.toIntOrNull()
-        if (stock ==null || stock < 0) errs["stock"] = "Stock invalido"
-        if (!ui.value.acepta) errs["acepta"] = "Debe aceptar los terminos"
-
-        _ui.value = ui.value.copy(errores = errs)
-        return errs.isEmpty()
+    fun addToCart(item: CartItem) {
+        viewModelScope.launch {
+            val current = _cart.value.toMutableList()
+            val idx = current.indexOfFirst { it.id == item.id }
+            if (idx >= 0) {
+                val old = current[idx]
+                current[idx] = old.copy(qty = old.qty + item.qty)
+            } else {
+                current.add(item)
+            }
+            _cart.value = current
+        }
     }
-}
 
-private inline fun <T> MutableStateFlow<T>.update(transform: (T) -> T) {
-    value=transform(value)
+    fun removeFromCart(productId: String) {
+        viewModelScope.launch {
+            _cart.value = _cart.value.filterNot { it.id == productId }
+        }
+    }
+
+    fun updateQty(productId: String, qty: Int) {
+        if (qty <= 0) {
+            removeFromCart(productId); return
+        }
+        viewModelScope.launch {
+            _cart.value = _cart.value.map { if (it.id == productId) it.copy(qty = qty) else it }
+        }
+    }
+
+    fun clearCart() {
+        viewModelScope.launch { _cart.value = emptyList() }
+    }
 }
