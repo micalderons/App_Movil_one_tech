@@ -1,5 +1,6 @@
 package com.example.one_teach.navigation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -18,6 +19,8 @@ import com.example.one_teach.viewmodel.ProfilesViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
 import com.example.one_teach.viewmodel.RegistrationViewModel
 import androidx.compose.runtime.getValue
+
+import com.example.one_teach.ui.screens.perfil.PerfilEntryScreen
 
 @Composable
 fun AppNavHost(nav: NavHostController) {
@@ -64,6 +67,22 @@ fun AppNavHost(nav: NavHostController) {
                 ProfilesScreen(nav)
             }
         }
+        composable(Route.Perfil.path) {
+            val vm: ProfilesViewModel = viewModel()
+            val users by vm.users.collectAsState()
+
+            if (users.isEmpty()) {
+                PerfilEntryScreen(nav)
+            } else {
+                ProfilesScreen(nav, vm)
+            }
+        }
+        composable(Route.Login.path) {
+            // TODO: tu pantalla de login futura
+            Text("Pantalla de inicio de sesión (próximamente)")
+        }
+
+
     }
 }
 

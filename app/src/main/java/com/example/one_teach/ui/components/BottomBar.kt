@@ -94,5 +94,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
                 indicatorColor = Color(0xFF1A237E)
             )
         )
+
+
     }
 }
