@@ -1,16 +1,16 @@
-package com.example.one_teach.ui.screens
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
+package com.example.one_teach.ui.screens.profile
 
 import android.Manifest
-import android.content.Context
-import android.net.Uri
+import android.content.ContentValues
 import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,175 +21,198 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil.compose.rememberAsyncImagePainter
+import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
-import com.example.one_teach.viewmodel.ProfilesViewModel
-import com.example.one_teach.navigation.Route
+import com.example.one_teach.viewmodel.ProfileViewModel
+import kotlinx.coroutines.launch
 import java.io.File
+import androidx.activity.result.PickVisualMediaRequest
+
+
+
+
 
 @Composable
-fun ProfilesScreen(
+fun ProfileScreen(
     nav: NavController,
-    vm: ProfilesViewModel = viewModel()
+    vm: ProfileViewModel = viewModel()
 ) {
-    val users by vm.users.collectAsState()
+    val ui = vm.ui
     val ctx = LocalContext.current
-    val currentRoute = nav.currentBackStackEntryAsState().value?.destination?.route
 
 
-    // Si no hay usuario, ofrece ir a Registro (o redirige desde el NavHost, como ya hiciste)
-    if (users.isEmpty()) {
-        AppScaffold(
-            nav = nav,
-            tittle = "Perfil",
-            bottomBar = { BottomBar(navController = nav, currentRoute = currentRoute) }
-        ) { inner ->
-            Column(
-                modifier = inner.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text("Aún no tienes un perfil registrado.")
-                Spacer(Modifier.height(12.dp))
-                Button(onClick = { nav.navigate(Route.Register.path) }) {
-                    Text("Registrarte / Iniciar sesión")
-                }
-            }
-        }
-        return
-    }
-
-    val user = users.first()
-    var photoUri by remember { mutableStateOf(user.photoUri?.let(Uri::parse)) }
+    val snackbarHost = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
 
     val galleryLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
+        contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        uri?.let {
-            photoUri = it
-            vm.updatePhoto(user.email, it.toString())
-        }
+        uri?.let { vm.updatePhoto(it.toString()) }
     }
 
-    val galleryPermission =
-        if (Build.VERSION.SDK_INT >= 33) Manifest.permission.READ_MEDIA_IMAGES
-        else Manifest.permission.READ_EXTERNAL_STORAGE
 
-    val galleryPermLauncher = rememberLauncherForActivityResult(
+    var cameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.TakePicture()
+    ) { ok ->
+        if (ok) cameraUri?.toString()?.let { vm.updatePhoto(it) }
+    }
+
+
+    val requestCameraPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+
+            cameraUri = createImageUri(ctx)
+            cameraUri?.let { cameraLauncher.launch(it) }
+        } else {
+            scope.launch { snackbarHost.showSnackbar("Permiso de cámara denegado") }
+        }
+    }
+    val requestReadImages = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
             galleryLauncher.launch(
                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
             )
+        } else {
+            scope.launch { snackbarHost.showSnackbar("Permiso de galería denegado") }
         }
     }
 
-    // --------------------- CÁMARA ---------------------
-    var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { ok ->
-        if (ok) {
-            tempPhotoUri?.let { uri ->
-                photoUri = uri
-                vm.updatePhoto(user.email, uri.toString()) // guarda en DataStore
-            }
-        }
-    }
 
-    val cameraPermLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            val uri = createTempImageUri(ctx)
-            tempPhotoUri = uri
-            cameraLauncher.launch(uri)
-        }
-    }
-
-    // --------------------- UI ---------------------
     AppScaffold(
         nav = nav,
         tittle = "Perfil",
-        bottomBar = { BottomBar(navController = nav, currentRoute = currentRoute) }
+        snackbarHostState = snackbarHost,
+        bottomBar = { BottomBar(navController = nav, currentRoute = Route.Perfil.path) }
     ) { inner ->
-
         Column(
             modifier = inner
                 .fillMaxSize()
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
             // Foto de perfil
-            if (photoUri != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(ctx)
-                        .data(photoUri)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier.size(120.dp).clip(CircleShape)
-                )
+            Image(
+                painter = rememberAsyncImagePainter(ui.photoUri),
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedButton(onClick = {
+                    if (Build.VERSION.SDK_INT >= 33) {
+
+                        galleryLauncher.launch(
+                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                        )
+                    } else {
+
+                        requestReadImages.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    }
+                }) {
+                    Text("Elegir de galería")
+                }
+
+
+                OutlinedButton(onClick = {
+                    requestCameraPermission.launch(Manifest.permission.CAMERA)
+                }) { Text("Tomar foto") }
+            }
+
+
+            if (!ui.editing) {
+                Button(onClick = { vm.setEditing(true) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Editar perfil")
+                }
             } else {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(120.dp).clip(CircleShape),
-                    tint = MaterialTheme.colorScheme.primary
+                Button(onClick = {
+                    vm.saveChanges()
+                    scope.launch { snackbarHost.showSnackbar("Cambios guardados") }
+                }, modifier = Modifier.fillMaxWidth()) {
+                    Text("Guardar cambios")
+                }
+            }
+
+
+            OutlinedTextField(
+                value = ui.fullname,
+                onValueChange = vm::updateFullname,
+                label = { Text("Nombre completo") },
+                enabled = ui.editing,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = ui.email,
+                onValueChange = { /* email no editable por defecto */ },
+                label = { Text("Correo") },
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = ui.rut,
+                onValueChange = { /* rut no editable por defecto */ },
+                label = { Text("RUT") },
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = ui.phone,
+                onValueChange = vm::updatePhone,
+                label = { Text("Teléfono") },
+                enabled = ui.editing,
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = ui.direccion,
+                onValueChange = vm::updateDireccion,
+                label = { Text("Dirección") },
+                enabled = ui.editing,
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+                OutlinedTextField(
+                    value = ui.region,
+                    onValueChange = vm::updateRegion,
+                    label = { Text("Región") },
+                    enabled = ui.editing,
+                    modifier = Modifier.weight(1f)
                 )
-            }
-
-            // Botón: Elegir de galería
-            Button(
-                onClick = { galleryPermLauncher.launch(galleryPermission) },
-                shape = CircleShape
-            ) {
-                Text("Elegir de galería")
-            }
-
-            // Botón: Tomar foto
-            Button(
-                onClick = { cameraPermLauncher.launch(Manifest.permission.CAMERA) },
-                shape = CircleShape
-            ) {
-                Text("Tomar foto")
-            }
-
-            Divider(Modifier.padding(top = 8.dp))
-
-            // Datos del usuario
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                Text("Nombre: ${user.fullname}")
-                Text("RUT: ${user.rut}")
-                Text("Correo: ${user.email}")
-                Text("Teléfono: ${user.phone}")
-                Text("Dirección: ${user.direccion}")
-                Text("Región: ${user.region}")
-                Text("Comuna: ${user.comuna}")
+                OutlinedTextField(
+                    value = ui.comuna,
+                    onValueChange = vm::updateComuna,
+                    label = { Text("Comuna") },
+                    enabled = ui.editing,
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
 }
 
-// Crea un archivo temporal para la foto de la cámara y devuelve su URI
-private fun createTempImageUri(ctx: Context): Uri {
-    val image = File.createTempFile("profile_", ".jpg", ctx.cacheDir).apply {
-        createNewFile()
-        deleteOnExit()
+
+private fun createImageUri(ctx: android.content.Context): android.net.Uri? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "profile_${System.currentTimeMillis()}.jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        }
+        ctx.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    } else {
+        val imagesDir = File(ctx.cacheDir, "images").apply { mkdirs() }
+        val imageFile = File(imagesDir, "profile_${System.currentTimeMillis()}.jpg")
+        FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", imageFile)
     }
-    val authority = "${ctx.packageName}.fileprovider"
-    return FileProvider.getUriForFile(ctx, authority, image)
 }

@@ -28,7 +28,7 @@ fun PerfilEntryScreen(nav: NavController) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
-            // 🔹 Botón para crear cuenta
+
             Button(
                 onClick = { nav.navigate(Route.Register.path) },
                 modifier = Modifier.fillMaxWidth()
@@ -36,19 +36,15 @@ fun PerfilEntryScreen(nav: NavController) {
                 Text("Crear cuenta")
             }
 
-            // 🔹 Botón para iniciar sesión
+
             OutlinedButton(
-                onClick = {
-                    // Cuando tengas creada la pantalla de login, reemplaza esta línea por:
-                    // nav.navigate(Route.Login.path)
-                    // Por ahora mostramos un mensaje de placeholder
-                    println("Pantalla de inicio de sesión aún no implementada")
-                },
+                onClick = { nav.navigate(Route.Login.path) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Iniciar sesión")
             }
+            }
         }
     }
-}
+
 

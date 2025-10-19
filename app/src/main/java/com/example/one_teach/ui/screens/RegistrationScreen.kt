@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -22,10 +23,10 @@ import com.example.one_teach.model.Usuario
 import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
+import com.example.one_teach.viewmodel.ProfileViewModel
 import com.example.one_teach.viewmodel.RegistrationViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.material3.SnackbarDuration
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,19 +34,19 @@ fun RegistrationScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
     vm: RegistrationViewModel = viewModel(),
+    profileVM: ProfileViewModel,
     onRegisterSuccess: (Usuario) -> Unit = {}
 ) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
     var showPwd by remember { mutableStateOf(false) }
     var showConfirmPwd by remember { mutableStateOf(false) }
+    var showTerms by remember { mutableStateOf(false) }
     val state = vm.ui
     val scroll = rememberScrollState()
 
-    // Snackbar + scope para avisos globales
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
 
     AppScaffold(
         nav = navController,
@@ -61,9 +62,6 @@ fun RegistrationScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Host del snackbar (puede estar en cualquier parte visible)
-            SnackbarHost(hostState = snackbarHost)
-
             Text("Crear cuenta", style = MaterialTheme.typography.headlineSmall)
 
             OutlinedTextField(
@@ -199,27 +197,64 @@ fun RegistrationScreen(
                 )
             )
 
+
+            var showTerms by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = state.acceptedTerms,
+                    onCheckedChange = { vm.onToggleTerms(it) }
+                )
+                TextButton(onClick = { showTerms = true }) {
+                    Text("Acepto los términos y condiciones")
+                }
+            }
+            state.termsError?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
+            }
+            if (showTerms) {
+                AlertDialog(
+                    onDismissRequest = { showTerms = false },
+                    title = { Text("Términos y condiciones") },
+                    text = { Text("Aquí van los términos de uso de tu app...") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            vm.onToggleTerms(true)
+                            showTerms = false
+                        }) { Text("Aceptar") }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showTerms = false }) { Text("Cancelar") }
+                    }
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Button(
                 onClick = {
                     val user = vm.submitOrErrors()
                     if (user != null) {
-                        scope.launch {
+                        // GUARDA EN EL VM COMPARTIDO
+                        profileVM.addOrSelectUser(user)
 
+                        // (Opcional) feedback y navegar
+                        scope.launch {
                             snackbarHost.showSnackbar(
                                 message = "Cuenta creada con éxito",
                                 withDismissAction = true,
                                 duration = SnackbarDuration.Short
                             )
-
-                            onRegisterSuccess(user)
                             navController.navigate(Route.Perfil.path) {
                                 popUpTo(Route.Register.path) { inclusive = true }
                                 launchSingleTop = true
                             }
                         }
                     } else {
+                        // muestra el primer error disponible
                         val msg = state.fullNameError
                             ?: state.rutError
                             ?: state.emailError
@@ -229,6 +264,7 @@ fun RegistrationScreen(
                             ?: state.regionError
                             ?: state.passwordError
                             ?: state.confirmPasswordError
+                            ?: state.termsError
                             ?: "Por favor corrige los campos en rojo"
 
                         scope.launch {
@@ -245,8 +281,6 @@ fun RegistrationScreen(
             ) {
                 Text("Registrarme")
             }
-
-
         }
     }
 }

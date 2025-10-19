@@ -3,7 +3,6 @@ package com.example.one_teach.ui.utils
 import android.util.Patterns
 import java.util.Locale
 
-/** -------------------- RUT -------------------- **/
 fun isValidRut(input: String): Boolean {
     val raw = input.replace(".", "").replace("-", "").trim().uppercase(Locale.ROOT)
     if (raw.length < 2) return false
@@ -40,22 +39,16 @@ fun formatRut(input: String): String {
     return sb.reverse().append("-").append(dv).toString()
 }
 
-/** -------------------- EMAIL -------------------- **/
 fun isValidEmail(email: String): Boolean =
     email.isNotBlank() && Patterns.EMAIL_ADDRESS.matcher(email).matches()
 
-/** -------------------- TELÉFONO -------------------- **/
 fun isValidPhone(phone: String): Boolean {
     val digits = phone.filter { it.isDigit() }
     return digits.length in 9..12
 }
 
-/** -------------------- PASSWORD -------------------- **/
 fun isStrongEnoughPassword(password: String): Boolean {
-    // Reglas simples: mínimo 6 caracteres. (Puedes endurecerlo si quieres)
+
     return password.length >= 6
-    // Ejemplo más estricto:
-    // return password.length >= 8 &&
-    //        password.any { it.isDigit() } &&
-    //        password.any { it.isLetter() }
+
 }

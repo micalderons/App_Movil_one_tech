@@ -4,6 +4,7 @@ package com.example.one_teach.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.one_teach.model.CartItem
+import com.example.one_teach.model.ProductoUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -12,6 +13,24 @@ class ProductoViewModel : ViewModel() {
 
     private val _cart = MutableStateFlow<List<CartItem>>(emptyList())
     val cart: StateFlow<List<CartItem>> = _cart
+
+    fun addToCart(product: ProductoUiState, qty: Int = 1) {
+
+        addToCart(
+            CartItem(
+                id = product.id,
+                name = product.name,
+                price = product.price,
+                qty = qty
+            )
+        )
+    }
+
+
+    fun removeFromCart(product: ProductoUiState) {
+        removeFromCart(product.id)
+    }
+
 
     fun addToCart(item: CartItem) {
         viewModelScope.launch {

@@ -1,88 +1,78 @@
 package com.example.one_teach.navigation
 
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.one_teach.ui.screens.HomeScreen
-import com.example.one_teach.ui.screens.ProfilesScreen
 import com.example.one_teach.ui.screens.ResumenScreen
-import com.example.one_teach.ui.screens.registro.RegistrationScreen
-import com.example.one_teach.ui.utils.PlaceholderScreen
-import com.example.one_teach.viewmodel.ConfigViewModel
-import com.example.one_teach.viewmodel.ProfilesViewModel
-import com.example.one_teach.viewmodel.ProductoViewModel
-import com.example.one_teach.viewmodel.RegistrationViewModel
-import androidx.compose.runtime.getValue
-
+import com.example.one_teach.ui.screens.login.LoginScreen
 import com.example.one_teach.ui.screens.perfil.PerfilEntryScreen
+import com.example.one_teach.ui.screens.profile.ProfileScreen
+import com.example.one_teach.ui.screens.registro.RegistrationScreen
+import com.example.one_teach.ui.screens.search.SearchScreen
+import com.example.one_teach.ui.utils.PlaceholderScreen
+import com.example.one_teach.viewmodel.*
 
 @Composable
 fun AppNavHost(nav: NavHostController) {
+    val homeVM: HomeViewModel = viewModel()
     val configVM: ConfigViewModel = viewModel()
-    val perfilVM: ProfilesViewModel = viewModel()
     val productoVM: ProductoViewModel = viewModel()
     val registroVM: RegistrationViewModel = viewModel()
+    val profileVM: ProfileViewModel = viewModel()
 
-
-    NavHost(navController = nav, startDestination = Route.Home.path) {
+    NavHost(
+        navController = nav,
+        startDestination = Route.Home.path,
+        route = Route.Root.path
+    ) {
         composable(Route.Home.path) {
-            HomeScreen(navController = nav, configVM = configVM)
+            HomeScreen(
+                navController = nav,
+                configVM = configVM,
+                homeViewModel = homeVM,
+                carritoVM = productoVM
+            )
         }
+
+        composable(Route.Buscar.path) {
+            SearchScreen(
+                nav = nav,
+                homeVM = homeVM,
+                carritoVM = productoVM
+            )
+        }
+
         composable(Route.Resumen.path) {
             ResumenScreen(nav = nav, vm = productoVM)
         }
-        composable(Route.Buscar.path) {
-            PlaceholderScreen("buscar")
-        }
-        composable(Route.Mas.path) {
-            PlaceholderScreen("Más")
-        }
-        composable(Route.Perfiles.path) {
-            ProfilesScreen(nav)
-        }
+
+        composable(Route.Mas.path) { PlaceholderScreen("Más") }
+
+        // PASA EL MISMO profileVM A REGISTRO
         composable(Route.Register.path) {
-            RegistrationScreen(navController = nav, vm = registroVM)
+            RegistrationScreen(
+                navController = nav,
+                vm = registroVM,
+                profileVM = profileVM
+            )
         }
+
+        composable(Route.Login.path) { LoginScreen(nav) }
+
+        // PERFIL: decide según users del MISMO profileVM
         composable(Route.Perfil.path) {
-            val vm: ProfilesViewModel = viewModel()
-            val users by vm.users.collectAsState()
-
-
-            LaunchedEffect(users) {
-                if (users.isEmpty()) {
-                    nav.navigate(Route.Register.path) {
-
-                        popUpTo(Route.Perfil.path) { inclusive = true }
-                    }
-                }
-            }
-
-            if (users.isNotEmpty()) {
-                ProfilesScreen(nav)
-            }
-        }
-        composable(Route.Perfil.path) {
-            val vm: ProfilesViewModel = viewModel()
-            val users by vm.users.collectAsState()
+            val users by profileVM.users.collectAsState(initial = emptyList())
+            // Debug opcional:
+            // LaunchedEffect(users) { android.util.Log.d("NAV", "users.size=${users.size}") }
 
             if (users.isEmpty()) {
                 PerfilEntryScreen(nav)
             } else {
-                ProfilesScreen(nav, vm)
+                ProfileScreen(nav, profileVM)
             }
         }
-        composable(Route.Login.path) {
-            // TODO: tu pantalla de login futura
-            Text("Pantalla de inicio de sesión (próximamente)")
-        }
-
-
     }
 }
-

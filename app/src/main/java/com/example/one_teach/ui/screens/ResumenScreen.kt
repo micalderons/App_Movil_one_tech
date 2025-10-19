@@ -94,7 +94,6 @@ private fun CartContent(
 ) {
     Column(Modifier.fillMaxSize()) {
 
-        // Encabezado
         Row(
             Modifier
                 .fillMaxWidth()
@@ -108,7 +107,6 @@ private fun CartContent(
         }
         Divider()
 
-        // Items
         LazyColumn(
             modifier = Modifier
                 .weight(1f)

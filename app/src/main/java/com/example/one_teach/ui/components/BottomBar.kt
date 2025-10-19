@@ -20,7 +20,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
         containerColor = Color(0xFF283593), // tu azul principal
         tonalElevation = 4.dp
     ) {
-        // Botón Inicio
+
         NavigationBarItem(
             selected = currentRoute == Route.Home.path,
             onClick = {
@@ -38,10 +38,10 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
             )
         )
 
-        // Botón Buscar
+
         NavigationBarItem(
             selected = currentRoute == Route.Buscar.path,
-            onClick = { /* TODO */ },
+            onClick = { navController.navigate(Route.Buscar.path) },
             icon = { Icon(Icons.Filled.Search, contentDescription = "Buscar") },
             label = { Text("Buscar") },
             colors = NavigationBarItemDefaults.colors(
@@ -51,7 +51,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
             )
         )
 
-        // Botón Carrito
+
         NavigationBarItem(
             selected = currentRoute == Route.Resumen.path,
             onClick = { /* TODO */ },
@@ -64,7 +64,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
             )
         )
 
-        // Botón Perfil
+
         NavigationBarItem(
             selected = currentRoute == Route.Perfil.path,
             onClick = {
@@ -82,7 +82,7 @@ fun BottomBar(navController: NavController, currentRoute: String?) {
             )
         )
 
-        // Botón Más
+
         NavigationBarItem(
             selected = currentRoute == Route.Mas.path,
             onClick = { /* TODO */ },
