@@ -1,1 +1,2 @@
-# App_Movil_one_tech
+#Este proyecto consiste en una applicación móvil desarrollado con Kotlin y Android Studio para "Level Up", en nuestro caso con permiso de los profesores le cambiamos el nombre a One-Tech solamente. consiste en una aplicación para vender sus productos como si fuera Mercado libre, con su Home, carro, buscar objetos, perfiles (creación de cuenta e inicio de sesión) y más parametros o cosas que debe de tener dentro de un menú despegable. Se utilizó para el repositoy GitHub para poder complementar y desarrollar de forma remota el proyecto.
+Los integrantes son: Miguel Calderón y Said Torres.
