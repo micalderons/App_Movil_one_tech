@@ -24,7 +24,7 @@ import com.example.one_teach.viewmodel.ConfigViewModel
 import com.example.one_teach.viewmodel.HomeViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
 import kotlinx.coroutines.launch
-
+import kotlinx.coroutines.delay   // 👈 IMPORTANTE
 
 @Composable
 fun HomeScreen(
@@ -38,7 +38,6 @@ fun HomeScreen(
     val modo by configVM.modoVendedor.collectAsState(initial = false)
     val cart by carritoVM.cart.collectAsState()
 
-
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val cs = MaterialTheme.colorScheme
@@ -47,140 +46,178 @@ fun HomeScreen(
     var selectedProductId by remember { mutableStateOf<String?>(null) }
     val selectedProduct = products.firstOrNull { it.id == selectedProductId }
 
+
+    var isLoading by remember { mutableStateOf(false) }
+    var pendingProductId by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(pendingProductId) {
+        val id = pendingProductId ?: return@LaunchedEffect
+        isLoading = true
+        delay(600)
+        // Pasa el 'id' directamente, ya que es un String
+        navController.navigate(Route.ProductDetail.build(id))
+        isLoading = false
+        pendingProductId = null
+    }
+
     AppScaffold(
         nav = navController,
         tittle = "ONE-TECH",
         snackbarHostState = snackbarHost,
         bottomBar = { BottomBar(navController = navController, currentRoute = Route.Home.path) },
-        actions = { MoreMenu(navController) } //
+        actions = { MoreMenu(navController) }
     ) { innerModifier ->
 
-        Column(
+        // Usamos un Box para poder dibujar el overlay de loading encima
+        Box(
             modifier = innerModifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            if (modo) {
-                Text(
-                    text = "Modo vendedor activo",
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
-            }
 
-            if (categories.isEmpty() || products.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (modo) {
                     Text(
-                        text = "No hay productos para mostrar",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = "Modo vendedor activo",
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
-                return@Column
-            }
 
-            LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
-                items(categories, key = { it }) { category ->
-                    val productForCategory = products.filter { it.category == category }
-                    if (productForCategory.isNotEmpty()) {
-                        Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                            Text(
-                                text = category,
-                                style = MaterialTheme.typography.titleMedium,
-                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            LazyRow(
-                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                            ) {
-                                items(productForCategory, key = { it.id }) { product ->
-                                    ProductCard(
-                                        modifier = Modifier.width(300.dp),
-                                        product = product,
-                                        onClick = { selectedProductId = product.id }
+                if (categories.isEmpty() || products.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No hay productos para mostrar",
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                } else {
+                    LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
+                        items(categories, key = { it }) { category ->
+                            val productForCategory = products.filter { it.category == category }
+                            if (productForCategory.isNotEmpty()) {
+                                Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                                    Text(
+                                        text = category,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        modifier = Modifier.padding(
+                                            horizontal = 16.dp,
+                                            vertical = 8.dp
+                                        ),
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
+                                    LazyRow(
+                                        contentPadding = PaddingValues(
+                                            horizontal = 16.dp,
+                                            vertical = 8.dp
+                                        )
+                                    ) {
+                                        items(productForCategory, key = { it.id }) { product ->
+                                            ProductCard(
+                                                modifier = Modifier.width(300.dp),
+                                                product = product,
+                                                onClick = { selectedProductId = product.id }
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
-        }
 
-        selectedProduct?.let { product ->
-            val inCart = cart.any { it.id == product.id }
+            // Sheet del producto
+            selectedProduct?.let { product ->
+                val inCart = cart.any { it.id == product.id }
 
-            ModalBottomSheet(
-                onDismissRequest = { selectedProductId = null },
-                // dragHandle = { SheetDragHandle() }
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ModalBottomSheet(
+                    onDismissRequest = { selectedProductId = null }
                 ) {
-                    Text(
-                        text = product.name,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "Categoría: ${product.category}",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Text(
-                        text = "Precio: ${product.price} CLP",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Spacer(Modifier.height(8.dp))
-
-                    OutlinedButton(
-                        onClick = {
-                            selectedProductId = null    // cierra el sheet
-                            navController.navigate(
-                                Route.ProductDetail.build(product.id) // id String
-                            )
-                        },
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(48.dp),
-                        shape = pill,
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = cs.onSurface)
+                            .padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text("Ver producto")
-                    }
-                    // Agregar
-                    Button(
-                        onClick = {
-                            carritoVM.addToCart(product) // overload agregado en tu VM
-                            selectedProductId = null
-                            scope.launch { snackbarHost.showSnackbar("Agregado al carrito") }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Agregar al carrito") }
+                        Text(
+                            text = product.name,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Categoría: ${product.category}",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            text = "Precio: ${product.price} CLP",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Spacer(Modifier.height(8.dp))
 
 
-                    if (inCart) {
                         OutlinedButton(
                             onClick = {
-                                carritoVM.removeFromCart(product.id)
                                 selectedProductId = null
-                                scope.launch { snackbarHost.showSnackbar("Quitado del carrito") }
+                                pendingProductId = product.id
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = pill,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = cs.onSurface
+                            )
+                        ) { Text("Ver producto") }
+
+                        Button(
+                            onClick = {
+                                carritoVM.addToCart(product)
+                                selectedProductId = null
+                                scope.launch {
+                                    snackbarHost.showSnackbar("Agregado al carrito")
+                                }
                             },
                             modifier = Modifier.fillMaxWidth()
-                        ) { Text("Quitar del carrito") }
+                        ) { Text("Agregar al carrito") }
+
+                        if (inCart) {
+                            OutlinedButton(
+                                onClick = {
+                                    carritoVM.removeFromCart(product.id)
+                                    selectedProductId = null
+                                    scope.launch {
+                                        snackbarHost.showSnackbar("Quitado del carrito")
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) { Text("Quitar del carrito") }
+                        }
+
+                        TextButton(
+                            onClick = { selectedProductId = null },
+                            modifier = Modifier.fillMaxWidth()
+                        ) { Text("Cancelar") }
+
+                        Spacer(Modifier.height(12.dp))
                     }
+                }
+            }
 
 
-                    TextButton(
-                        onClick = { selectedProductId = null },
-                        modifier = Modifier.fillMaxWidth()
-                    ) { Text("Cancelar") }
-
-                    Spacer(Modifier.height(12.dp))
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(cs.surface.copy(alpha = 0.4f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
             }
         }
