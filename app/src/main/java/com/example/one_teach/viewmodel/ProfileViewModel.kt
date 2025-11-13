@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.example.one_teach.model.Usuario
+import com.example.one_teach.viewmodel.ProfileUi
+
 
 data class ProfileUi(
     val fullname: String = "",

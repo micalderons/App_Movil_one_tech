@@ -40,7 +40,10 @@ fun CartScreen(
         }
     }
 
-    val total = cart.sumOf { it.price * it.qty }
+    val subtotal = cart.sumOf { it.price * it.qty }
+
+    //Este será el total que mostramos abajo a la derecha
+    var totalToShow by remember(subtotal) { mutableStateOf(subtotal) }
 
     AppScaffold(
         nav = nav,
@@ -63,7 +66,8 @@ fun CartScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Encabezado
+
+            // Encabezados
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -77,7 +81,7 @@ fun CartScreen(
             }
             Divider()
 
-            // Lista
+            // Lista de items
             LazyColumn(
                 modifier = Modifier
                     .weight(1f)
@@ -93,7 +97,7 @@ fun CartScreen(
                     ) {
                         BodyCell(item.name, 0.40f)
 
-                        // Cantidad con stepper
+                        // Cantidad
                         Row(
                             modifier = Modifier
                                 .weight(0.20f)
@@ -108,10 +112,10 @@ fun CartScreen(
                                 Icon(Icons.Filled.Remove, contentDescription = "Menos")
                             }
                             Text(
-                                text = "${item.qty}",
-                                style = MaterialTheme.typography.bodyMedium,
+                                "${item.qty}",
                                 modifier = Modifier.width(28.dp),
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                             IconButton(onClick = { vm.updateQty(item.id, item.qty + 1) }) {
                                 Icon(Icons.Filled.Add, contentDescription = "Más")
@@ -129,7 +133,20 @@ fun CartScreen(
                 }
             }
 
-            // Total y acciones
+            Spacer(Modifier.height(12.dp))
+
+            //Resumen con código de descuento
+            CartSummaryWithDiscount(
+                subtotal = subtotal,
+                money = money,
+                onTotalChanged = { newTotal ->
+                    totalToShow = newTotal
+                }
+            )
+
+            Spacer(Modifier.height(12.dp))
+
+            // Acciones
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -145,7 +162,7 @@ fun CartScreen(
                     Text("Total: ", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        money.format(total),
+                        money.format(totalToShow),   // 👈 AHORA USA EL TOTAL CON DESCUENTO
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -155,9 +172,7 @@ fun CartScreen(
             Spacer(Modifier.height(12.dp))
 
             Button(
-                onClick = {
-                    // TODO: continuar a flujo de pago / dirección
-                },
+                onClick = { /* TODO: flujo de pago */ },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Continuar compra")
@@ -193,4 +208,69 @@ private fun RowScope.BodyCell(
         style = MaterialTheme.typography.bodyMedium,
         textAlign = align
     )
+}
+
+// Componente que calcula descuento + total y se lo informa al CartScreen
+@Composable
+fun CartSummaryWithDiscount(
+    subtotal: Int,
+    money: NumberFormat,
+    onTotalChanged: (Int) -> Unit
+) {
+    var code by remember { mutableStateOf("") }
+    var discountApplied by remember { mutableStateOf(false) }
+
+    val discount = if (discountApplied) (subtotal * 0.10).toInt() else 0
+    val finalTotal = subtotal - discount
+
+    // Avisamos al padre cada vez que cambie subtotal o descuento
+    LaunchedEffect(subtotal, discountApplied) {
+        onTotalChanged(finalTotal)
+    }
+
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
+        OutlinedTextField(
+            value = code,
+            onValueChange = { code = it },
+            label = { Text("Código de descuento") },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Button(
+            onClick = {
+                discountApplied = code.lowercase().trim() == "duocuc.cl"
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Aplicar código")
+        }
+
+        Divider()
+
+        Text("Subtotal: ${money.format(subtotal)}")
+
+        if (discountApplied) {
+            Text(
+                "Descuento 10%: -${money.format(discount)}",
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Text(
+                "Descuento 10%: \$0",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Text(
+            "Total a pagar: ${money.format(finalTotal)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }

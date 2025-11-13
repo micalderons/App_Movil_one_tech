@@ -19,6 +19,10 @@ import com.example.one_teach.ui.screens.reviews.ReviewsScreen
 import com.example.one_teach.ui.screens.policies.PoliciesScreen
 import com.example.one_teach.ui.screens.settings.SettingsScreen
 import com.example.one_teach.ui.screens.about.AboutScreen
+import com.example.one_teach.ui.screens.WelcomeScreen
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+import com.example.one_teach.ui.screens.ProductDetailScreen
 
 
 @Composable
@@ -31,7 +35,7 @@ fun AppNavHost(nav: NavHostController) {
 
     NavHost(
         navController = nav,
-        startDestination = Route.Home.path,
+        startDestination = Route.Welcome.path,
         route = Route.Root.path
     ) {
         composable(Route.Home.path) {
@@ -102,5 +106,27 @@ fun AppNavHost(nav: NavHostController) {
                 message = "Más próximamente"
             )
         }
+        composable(Route.Welcome.path) {
+            WelcomeScreen(
+                onRegister = { nav.navigate(Route.Register.path) },
+                onLogin = { nav.navigate(Route.Login.path) },
+                onGuest = { nav.navigate(Route.Home.path) } // o Home
+            )
+        }
+        composable(
+            route = Route.ProductDetail.path,
+            arguments = listOf(
+                navArgument("id") { type = NavType.StringType }
+            )
+        ) { backStack ->
+            val productId = backStack.arguments?.getString("id") ?: ""
+            ProductDetailScreen(
+                nav = nav,
+                productId = productId,
+                homeVM = homeVM,
+                carritoVM = productoVM
+            )
+        }
+        }
     }
-}
+

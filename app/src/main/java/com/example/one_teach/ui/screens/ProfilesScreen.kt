@@ -29,6 +29,8 @@ import com.example.one_teach.viewmodel.ProfileViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.activity.result.PickVisualMediaRequest
+import com.example.one_teach.viewmodel.ProfileUi
+
 
 
 
@@ -214,5 +216,71 @@ private fun createImageUri(ctx: android.content.Context): android.net.Uri? {
         val imagesDir = File(ctx.cacheDir, "images").apply { mkdirs() }
         val imageFile = File(imagesDir, "profile_${System.currentTimeMillis()}.jpg")
         FileProvider.getUriForFile(ctx, "${ctx.packageName}.fileprovider", imageFile)
+    }
+}
+@Composable
+private fun ProfileForm(
+    ui: ProfileUi,
+    enabled: Boolean,
+    onFullname: (String) -> Unit,
+    onPhone: (String) -> Unit,
+    onDireccion: (String) -> Unit,
+    onRegion: (String) -> Unit,
+    onComuna: (String) -> Unit
+) {
+    OutlinedTextField(
+        value = ui.fullname,
+        onValueChange = onFullname,
+        label = { Text("Nombre completo") },
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = ui.email,
+        onValueChange = {}, // email no editable
+        label = { Text("Correo") },
+        enabled = false,
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = ui.rut,
+        onValueChange = {}, // rut no editable
+        label = { Text("RUT") },
+        enabled = false,
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = ui.phone,
+        onValueChange = onPhone,
+        label = { Text("Teléfono") },
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth()
+    )
+    OutlinedTextField(
+        value = ui.direccion,
+        onValueChange = onDireccion,
+        label = { Text("Dirección") },
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth(),
+        minLines = 2
+    )
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = ui.region,
+            onValueChange = onRegion,
+            label = { Text("Región") },
+            enabled = enabled,
+            modifier = Modifier.weight(1f)
+        )
+        OutlinedTextField(
+            value = ui.comuna,
+            onValueChange = onComuna,
+            label = { Text("Comuna") },
+            enabled = enabled,
+            modifier = Modifier.weight(1f)
+        )
     }
 }

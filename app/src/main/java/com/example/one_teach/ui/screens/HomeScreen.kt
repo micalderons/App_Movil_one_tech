@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,7 +41,8 @@ fun HomeScreen(
 
     val snackbarHost = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
+    val cs = MaterialTheme.colorScheme
+    val pill = RoundedCornerShape(24.dp)
 
     var selectedProductId by remember { mutableStateOf<String?>(null) }
     val selectedProduct = products.firstOrNull { it.id == selectedProductId }
@@ -135,6 +137,21 @@ fun HomeScreen(
 
                     Spacer(Modifier.height(8.dp))
 
+                    OutlinedButton(
+                        onClick = {
+                            selectedProductId = null    // cierra el sheet
+                            navController.navigate(
+                                Route.ProductDetail.build(product.id) // id String
+                            )
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = pill,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = cs.onSurface)
+                    ) {
+                        Text("Ver producto")
+                    }
                     // Agregar
                     Button(
                         onClick = {

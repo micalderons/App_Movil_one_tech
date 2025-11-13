@@ -14,6 +14,11 @@ sealed class Route(val path: String) {
     object Reviews: Route("reviews")
     object Policies: Route("policies")
     object About : Route("about")
+    object Welcome : Route("welcome")
+
+    object ProductDetail : Route("product/{id}"){
+        fun build (id: String) = "product/$id"
+    }
 
 
 }
