@@ -2,7 +2,7 @@ package com.example.one_teach.viewmodel
 
 import androidx.lifecycle.ViewModel
 import com.example.one_teach.model.Usuario
-import com.example.one_teach.ui.utils.*
+import com.example.one_teach.ui.utilss.*
 
 // 👇 IMPORTS para que Compose observe el estado
 import androidx.compose.runtime.getValue

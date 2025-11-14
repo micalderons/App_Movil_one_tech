@@ -6,108 +6,79 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
+import java.text.NumberFormat
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 
 @Composable
 fun CartSummaryWithDiscount(
-    subtotal: Int
+    subtotal: Int,
+    money: NumberFormat,
+    onTotalChanged: (Int) -> Unit
 ) {
-    val cs = MaterialTheme.colorScheme
-
     var code by remember { mutableStateOf("") }
-    var hasDiscount by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf<String?>(null) }
+    var appliedCode by remember { mutableStateOf<String?>(null) }
 
-    // Calculamos descuento y total a pagar en base al subtotal actual
-    val discount = remember(subtotal, hasDiscount) {
-        if (hasDiscount) (subtotal * 0.10).roundToInt() else 0
+
+    val result = remember(subtotal, appliedCode) {
+        applyDiscountCode(subtotal, appliedCode)
     }
-    val totalToPay = subtotal - discount
+    val discount = result.discountAmount
+    val finalTotal = result.finalTotal
+
+
+    LaunchedEffect(subtotal, discount) {
+        onTotalChanged(finalTotal)
+    }
 
     Column(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
 
-        // Código de descuento
         OutlinedTextField(
             value = code,
             onValueChange = { code = it },
             label = { Text("Código de descuento") },
-            placeholder = { Text("Ej: duocuc.cl") },
-            singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
 
         Button(
             onClick = {
-                hasDiscount = code.trim().equals("duocuc.cl", ignoreCase = true)
-                message = if (hasDiscount) {
-                    "Código aplicado: 10% de descuento"
-                } else {
-                    "Código inválido"
-                }
+                appliedCode = code
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Aplicar código")
         }
 
-        message?.let {
+        Divider()
+
+        Text("Subtotal: ${money.format(subtotal)}")
+
+        if (discount > 0) {
             Text(
-                text = it,
-                color = if (hasDiscount) cs.primary else cs.error,
-                style = MaterialTheme.typography.bodyMedium
+                "Descuento 10%: -${money.format(discount)}",
+                color = MaterialTheme.colorScheme.primary
+            )
+        } else {
+            Text(
+                "Descuento 10%: \$0",
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
-        Divider(thickness = 1.dp)
-
-        // Resumen de montos
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Total productos:")
-                Text("$${subtotal}")
-            }
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Descuento:")
-                Text(
-                    text = if (discount > 0) "-$$discount" else "$0",
-                    color = if (discount > 0) cs.primary else cs.onSurfaceVariant
-                )
-            }
-
-            Divider(thickness = 1.dp)
-
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    "Total a pagar:",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    "$$totalToPay",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = cs.primary
-                )
-
-            }
-        }
+        Text(
+            "Total a pagar: ${money.format(finalTotal)}",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
+
+
 

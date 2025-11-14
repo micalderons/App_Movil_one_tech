@@ -13,7 +13,7 @@ import com.example.one_teach.ui.screens.perfil.PerfilEntryScreen
 import com.example.one_teach.ui.screens.profile.ProfileScreen
 import com.example.one_teach.ui.screens.registro.RegistrationScreen
 import com.example.one_teach.ui.screens.search.SearchScreen
-import com.example.one_teach.ui.utils.PlaceholderScreen
+import com.example.one_teach.ui.utilss.PlaceholderScreen
 import com.example.one_teach.viewmodel.*
 import com.example.one_teach.ui.screens.reviews.ReviewsScreen
 import com.example.one_teach.ui.screens.policies.PoliciesScreen

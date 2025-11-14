@@ -162,7 +162,7 @@ fun CartScreen(
                     Text("Total: ", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        money.format(totalToShow),   // 👈 AHORA USA EL TOTAL CON DESCUENTO
+                        money.format(totalToShow),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -274,3 +274,17 @@ fun CartSummaryWithDiscount(
         )
     }
 }
+data class DiscountResult(
+    val discountAmount: Int,
+    val finalTotal: Int
+)
+
+fun applyDiscountCode(subtotal: Int, code: String?): DiscountResult {
+    val isValid = code?.trim()?.lowercase() == "duocuc.cl"
+    val discount = if (isValid) (subtotal * 0.10).toInt() else 0
+    return DiscountResult(
+        discountAmount = discount,
+        finalTotal = subtotal - discount
+    )
+}
+

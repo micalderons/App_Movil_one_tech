@@ -54,7 +54,7 @@ fun HomeScreen(
         val id = pendingProductId ?: return@LaunchedEffect
         isLoading = true
         delay(600)
-        // Pasa el 'id' directamente, ya que es un String
+
         navController.navigate(Route.ProductDetail.build(id))
         isLoading = false
         pendingProductId = null

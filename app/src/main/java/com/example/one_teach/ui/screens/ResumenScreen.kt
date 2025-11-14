@@ -14,8 +14,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
-import com.example.one_teach.ui.utils.WindowWidth
-import com.example.one_teach.ui.utils.rememberWindowWidthClass
+import com.example.one_teach.ui.utilss.WindowWidth
+import com.example.one_teach.ui.utilss.rememberWindowWidthClass
 import com.example.one_teach.viewmodel.ProductoViewModel
 import com.example.one_teach.model.CartItem
 import java.text.NumberFormat

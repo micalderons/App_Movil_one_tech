@@ -1,4 +1,4 @@
-package com.example.one_teach.ui.utils
+package com.example.one_teach.ui.utilss
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext

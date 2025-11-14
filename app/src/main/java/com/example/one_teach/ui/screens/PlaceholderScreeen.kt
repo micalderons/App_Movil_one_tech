@@ -1,10 +1,9 @@
-package com.example.one_teach.ui.utils
+package com.example.one_teach.ui.utilss
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.one_teach.ui.components.AppScaffold

@@ -1,4 +1,4 @@
-package com.example.one_teach.ui.utils
+package com.example.one_teach.ui.utilss
 
 import android.util.Patterns
 import java.util.Locale
