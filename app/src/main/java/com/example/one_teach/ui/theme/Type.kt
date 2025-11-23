@@ -10,6 +10,7 @@ import com.example.one_teach.R
 
 val Roboto = FontFamily(
     Font(R.font.robotoregular, FontWeight.Normal),
+    Font(R.font.roboto_medium, FontWeight.Medium),
     Font(R.font.robotobold, FontWeight.Bold)
 )
 
@@ -21,7 +22,7 @@ val Orbitron = FontFamily(
 val AppTypography = Typography(
     headlineLarge = TextStyle(
         fontFamily = Orbitron,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Medium,
         fontSize = 32.sp
     ),
     bodyLarge = TextStyle(
@@ -31,4 +32,5 @@ val AppTypography = Typography(
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
+    // Añadir más estilos de texto aquí si es necesario
 )
