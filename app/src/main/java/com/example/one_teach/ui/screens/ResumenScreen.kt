@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.one_teach.ui.screens
 
 import androidx.compose.foundation.layout.*

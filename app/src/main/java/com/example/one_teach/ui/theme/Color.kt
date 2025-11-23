@@ -55,3 +55,5 @@ val OnSurfaceDark = Color(0xFFE1E3E6)
 val SurfaceVariantDark = Color(0xFF2C3238)
 val OnSurfaceVariantDark = Color(0xFFC2C8CE)
 val OutlineDark = Color(0xFF8C9197)
+
+val NeonGreen = Color(0xFF39FF14)
