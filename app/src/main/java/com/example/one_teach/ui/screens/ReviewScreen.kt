@@ -1,4 +1,4 @@
-package com.example.one_teach.ui.screens.reviews
+package com.example.one_teach.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -6,14 +6,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.ui.components.MoreMenu
@@ -57,7 +58,7 @@ fun ReviewsScreen(
         actions = { MoreMenu(nav) }
     ) { modifier ->
         if (selected.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text("Aún no hay productos para reseñar")
             }
             return@AppScaffold
@@ -91,7 +92,11 @@ fun ReviewsScreen(
 
                         reviews.forEach { r ->
                             ReviewRow(r)
-                            Divider(Modifier.padding(vertical = 6.dp))
+                            HorizontalDivider(
+                                Modifier.padding(vertical = 6.dp),
+                                DividerDefaults.Thickness,
+                                DividerDefaults.color
+                            )
                         }
                     }
                 }
@@ -103,7 +108,7 @@ fun ReviewsScreen(
 @Composable
 private fun ReviewRow(r: Review) {
     Column {
-        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(r.author, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             Spacer(Modifier.width(8.dp))
             repeat(r.rating) {

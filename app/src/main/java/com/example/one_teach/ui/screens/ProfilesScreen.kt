@@ -1,9 +1,11 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.one_teach.ui.screens.profile
+package com.example.one_teach.ui.screens
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Context
+import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -56,7 +58,7 @@ fun ProfileScreen(
     }
 
 
-    var cameraUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { ok ->
@@ -75,7 +77,7 @@ fun ProfileScreen(
             scope.launch { snackbarHost.showSnackbar("Permiso de cámara denegado") }
         }
     }
-    val requestReadImages = rememberLauncherForActivityResult(
+    rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
@@ -114,15 +116,10 @@ fun ProfileScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedButton(onClick = {
-                    if (Build.VERSION.SDK_INT >= 33) {
 
-                        galleryLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    } else {
-
-                        requestReadImages.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    }
+                    galleryLauncher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
                 }) {
                     Text("Elegir de galería")
                 }
@@ -205,7 +202,7 @@ fun ProfileScreen(
 }
 
 
-private fun createImageUri(ctx: android.content.Context): android.net.Uri? {
+private fun createImageUri(ctx: Context): Uri? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, "profile_${System.currentTimeMillis()}.jpg")

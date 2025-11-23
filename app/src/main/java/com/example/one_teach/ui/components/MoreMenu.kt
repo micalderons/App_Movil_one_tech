@@ -7,7 +7,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.example.one_teach.navigation.Route
-import com.example.one_teach.ui.screens.about.AboutScreen
 
 @Composable
 fun MoreMenu(nav: NavController, modifier: Modifier = Modifier) {

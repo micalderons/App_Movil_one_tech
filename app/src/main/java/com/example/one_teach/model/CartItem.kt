@@ -5,5 +5,6 @@ data class CartItem(
     val price: Int,
     val qty: Int
 ) {
-    val subtotal: Int get() = price * qty
+    val subtotal: Int
+        get() = price * qty
 }

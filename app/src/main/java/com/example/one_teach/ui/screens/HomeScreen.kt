@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -24,7 +25,7 @@ import com.example.one_teach.viewmodel.ConfigViewModel
 import com.example.one_teach.viewmodel.HomeViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay   // 👈 IMPORTANTE
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
@@ -43,18 +44,18 @@ fun HomeScreen(
     val cs = MaterialTheme.colorScheme
     val pill = RoundedCornerShape(24.dp)
 
-    var selectedProductId by remember { mutableStateOf<String?>(null) }
-    val selectedProduct = products.firstOrNull { it.id == selectedProductId }
+    var selectedProductId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedProduct by remember(products, selectedProductId) {
+        mutableStateOf(products.firstOrNull { it.id == selectedProductId })
+    }
 
-
-    var isLoading by remember { mutableStateOf(false) }
-    var pendingProductId by remember { mutableStateOf<String?>(null) }
+    var isLoading by rememberSaveable { mutableStateOf(false) }
+    var pendingProductId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(pendingProductId) {
         val id = pendingProductId ?: return@LaunchedEffect
         isLoading = true
         delay(600)
-
         navController.navigate(Route.ProductDetail.build(id))
         isLoading = false
         pendingProductId = null
@@ -64,25 +65,23 @@ fun HomeScreen(
         nav = navController,
         tittle = "ONE-TECH",
         snackbarHostState = snackbarHost,
-        bottomBar = { BottomBar(navController = navController, currentRoute = Route.Home.path) },
+        bottomBar = { BottomBar(navController, Route.Home.path) },
         actions = { MoreMenu(navController) }
     ) { innerModifier ->
 
-        // Usamos un Box para poder dibujar el overlay de loading encima
         Box(
             modifier = innerModifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(cs.background)
         ) {
 
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
+
                 if (modo) {
                     Text(
                         text = "Modo vendedor activo",
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        color = cs.primary,
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
 
@@ -91,10 +90,7 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "No hay productos para mostrar",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Text("No hay productos para mostrar", style = MaterialTheme.typography.bodyLarge)
                     }
                 } else {
                     LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
@@ -105,17 +101,11 @@ fun HomeScreen(
                                     Text(
                                         text = category,
                                         style = MaterialTheme.typography.titleMedium,
-                                        modifier = Modifier.padding(
-                                            horizontal = 16.dp,
-                                            vertical = 8.dp
-                                        ),
-                                        color = MaterialTheme.colorScheme.onBackground
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                        color = cs.onBackground
                                     )
                                     LazyRow(
-                                        contentPadding = PaddingValues(
-                                            horizontal = 16.dp,
-                                            vertical = 8.dp
-                                        )
+                                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                                     ) {
                                         items(productForCategory, key = { it.id }) { product ->
                                             ProductCard(
@@ -132,9 +122,10 @@ fun HomeScreen(
                 }
             }
 
-            // Sheet del producto
             selectedProduct?.let { product ->
-                val inCart = cart.any { it.id == product.id }
+                val inCart by remember(cart) {
+                    derivedStateOf { cart.any { it.id == product.id } }
+                }
 
                 ModalBottomSheet(
                     onDismissRequest = { selectedProductId = null }
@@ -145,21 +136,9 @@ fun HomeScreen(
                             .padding(20.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Text(
-                            text = product.name,
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Categoría: ${product.category}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Text(
-                            text = "Precio: ${product.price} CLP",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Spacer(Modifier.height(8.dp))
-
+                        Text(product.name, style = MaterialTheme.typography.titleMedium)
+                        Text("Categoría: ${product.category}", style = MaterialTheme.typography.bodySmall)
+                        Text("Precio: ${product.price} CLP", style = MaterialTheme.typography.bodyMedium)
 
                         OutlinedButton(
                             onClick = {
@@ -170,18 +149,14 @@ fun HomeScreen(
                                 .fillMaxWidth()
                                 .height(48.dp),
                             shape = pill,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = cs.onSurface
-                            )
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = cs.onSurface)
                         ) { Text("Ver producto") }
 
                         Button(
                             onClick = {
                                 carritoVM.addToCart(product)
                                 selectedProductId = null
-                                scope.launch {
-                                    snackbarHost.showSnackbar("Agregado al carrito")
-                                }
+                                scope.launch { snackbarHost.showSnackbar("Agregado al carrito") }
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Agregar al carrito") }
@@ -191,9 +166,7 @@ fun HomeScreen(
                                 onClick = {
                                     carritoVM.removeFromCart(product.id)
                                     selectedProductId = null
-                                    scope.launch {
-                                        snackbarHost.showSnackbar("Quitado del carrito")
-                                    }
+                                    scope.launch { snackbarHost.showSnackbar("Quitado del carrito") }
                                 },
                                 modifier = Modifier.fillMaxWidth()
                             ) { Text("Quitar del carrito") }
@@ -203,12 +176,9 @@ fun HomeScreen(
                             onClick = { selectedProductId = null },
                             modifier = Modifier.fillMaxWidth()
                         ) { Text("Cancelar") }
-
-                        Spacer(Modifier.height(12.dp))
                     }
                 }
             }
-
 
             if (isLoading) {
                 Box(

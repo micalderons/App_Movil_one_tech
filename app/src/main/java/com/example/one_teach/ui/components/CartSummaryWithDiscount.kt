@@ -1,16 +1,26 @@
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.one_teach.model.DiscountResult
+import com.example.one_teach.model.applyDiscountCode
 import java.text.NumberFormat
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 
 @Composable
 fun CartSummaryWithDiscount(
@@ -22,7 +32,7 @@ fun CartSummaryWithDiscount(
     var appliedCode by remember { mutableStateOf<String?>(null) }
 
 
-    val result = remember(subtotal, appliedCode) {
+    val result = remember<DiscountResult>(key1 = subtotal, key2 = appliedCode) {
         applyDiscountCode(subtotal, appliedCode)
     }
     val discount = result.discountAmount
@@ -56,7 +66,7 @@ fun CartSummaryWithDiscount(
             Text("Aplicar código")
         }
 
-        Divider()
+        HorizontalDivider(Modifier, DividerDefaults.Thickness, DividerDefaults.color)
 
         Text("Subtotal: ${money.format(subtotal)}")
 
@@ -67,7 +77,7 @@ fun CartSummaryWithDiscount(
             )
         } else {
             Text(
-                "Descuento 10%: \$0",
+                "Descuento 10%: $0",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

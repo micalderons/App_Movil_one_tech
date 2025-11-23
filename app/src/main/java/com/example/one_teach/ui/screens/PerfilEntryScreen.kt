@@ -1,4 +1,4 @@
-package com.example.one_teach.ui.screens.perfil
+package com.example.one_teach.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

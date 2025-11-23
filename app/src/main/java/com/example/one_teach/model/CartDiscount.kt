@@ -1,3 +1,4 @@
+package com.example.one_teach.model
 data class DiscountResult(
     val discountAmount: Int,
     val finalTotal: Int

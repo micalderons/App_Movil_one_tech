@@ -7,25 +7,25 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.example.one_teach.data.network.NetworkProductRepository
 import com.example.one_teach.navigation.AppNavHost
+import com.example.one_teach.repository.NetworkProductRepository
 import com.example.one_teach.ui.theme.One_TeachAppTheme
 import kotlinx.coroutines.launch
 
+class MainActivity : ComponentActivity() {
 
-class MainActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // Minimal smoke test: verify backend connectivity on app start (logs only)
+        // Test de conexión mínima con backend (solo logs)
         lifecycleScope.launch {
             val tag = "NetworkSmoke"
             val repo = NetworkProductRepository()
-            val result = repo.fetchProducts()
-            result.onSuccess { list ->
-                Log.d(tag, "Fetched products: count=${list.size} first=${list.firstOrNull()} ")
-            }.onFailure { e ->
+            try {
+                val products = repo.fetchProducts()
+                Log.d(tag, "Fetched products: count=${products.size}, first=${products.firstOrNull()}")
+            } catch (e: Exception) {
                 Log.e(tag, "Failed to fetch products", e)
             }
         }

@@ -1,4 +1,6 @@
-package com.example.one_teach.ui.screens.cart
+@file:Suppress("DEPRECATION")
+
+package com.example.one_teach.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.viewmodel.ProductoViewModel
@@ -43,7 +44,7 @@ fun CartScreen(
     val subtotal = cart.sumOf { it.price * it.qty }
 
     //Este será el total que mostramos abajo a la derecha
-    var totalToShow by remember(subtotal) { mutableStateOf(subtotal) }
+    var totalToShow by remember(subtotal) { mutableIntStateOf(value = subtotal) }
 
     AppScaffold(
         nav = nav,
@@ -262,7 +263,7 @@ fun CartSummaryWithDiscount(
             )
         } else {
             Text(
-                "Descuento 10%: \$0",
+                "Descuento 10%: $0",
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }

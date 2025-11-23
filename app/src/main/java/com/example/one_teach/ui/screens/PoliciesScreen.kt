@@ -1,17 +1,16 @@
-package com.example.one_teach.ui.screens.policies
+package com.example.one_teach.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.AppScaffold
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.ui.components.MoreMenu
+import java.util.Calendar
 
 @Composable
 fun PoliciesScreen(nav: NavController) {
@@ -39,7 +38,7 @@ fun PoliciesScreen(nav: NavController) {
                         "• Propiedad intelectual: Marcas, logotipos y contenido visual/textual pertenecen a sus respectivos dueños. " +
                         "Queda prohibida su reproducción no autorizada.\n\n" +
                         "• Responsabilidad: No nos hacemos responsables por daños derivados del uso indebido de la aplicación.\n\n" +
-                        "© ${java.util.Calendar.getInstance().get(java.util.Calendar.YEAR)} ONE-TECH. Todos los derechos reservados.",
+                        "© ${Calendar.getInstance().get(Calendar.YEAR)} ONE-TECH. Todos los derechos reservados.",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Start
             )

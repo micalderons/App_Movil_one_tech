@@ -7,22 +7,23 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.one_teach.ui.screens.HomeScreen
 import com.example.one_teach.ui.screens.ResumenScreen
-import com.example.one_teach.ui.screens.cart.CartScreen
-import com.example.one_teach.ui.screens.login.LoginScreen
-import com.example.one_teach.ui.screens.perfil.PerfilEntryScreen
-import com.example.one_teach.ui.screens.profile.ProfileScreen
-import com.example.one_teach.ui.screens.registro.RegistrationScreen
-import com.example.one_teach.ui.screens.search.SearchScreen
-import com.example.one_teach.ui.utilss.PlaceholderScreen
+import com.example.one_teach.ui.screens.PlaceholderScreen
 import com.example.one_teach.viewmodel.*
-import com.example.one_teach.ui.screens.reviews.ReviewsScreen
-import com.example.one_teach.ui.screens.policies.PoliciesScreen
-import com.example.one_teach.ui.screens.settings.SettingsScreen
-import com.example.one_teach.ui.screens.about.AboutScreen
 import com.example.one_teach.ui.screens.WelcomeScreen
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.one_teach.ui.screens.AboutScreen
+import com.example.one_teach.ui.screens.CartScreen
+import com.example.one_teach.ui.screens.LoginScreen
+import com.example.one_teach.ui.screens.PerfilEntryScreen
+import com.example.one_teach.ui.screens.PoliciesScreen
 import com.example.one_teach.ui.screens.ProductDetailScreen
+import com.example.one_teach.ui.screens.ProfileScreen
+import com.example.one_teach.ui.screens.RegistrationScreen
+import com.example.one_teach.ui.screens.ReviewsScreen
+import com.example.one_teach.ui.screens.SearchScreen
+import com.example.one_teach.ui.screens.SettingsScreen
+import com.example.one_teach.ui.utilss.PlaceholderScreen
 
 
 @Composable
