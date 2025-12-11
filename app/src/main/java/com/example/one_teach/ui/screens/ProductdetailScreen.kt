@@ -48,6 +48,22 @@ import com.example.one_teach.navigation.Route
 import com.example.one_teach.ui.components.BottomBar
 import com.example.one_teach.viewmodel.HomeViewModel
 import com.example.one_teach.viewmodel.ProductoViewModel
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateListOf
+import kotlinx.coroutines.launch
+
+
+
 
 @Composable
 fun ProductDetailScreen(
@@ -63,10 +79,23 @@ fun ProductDetailScreen(
     val product = products.firstOrNull { it.id == productId }
 
     var qty by remember { mutableIntStateOf(1) }
+    var rating by remember { mutableIntStateOf(0) }
+    var comment by remember { mutableStateOf("") }
+    data class Review(val rating: Int, val comment: String)
+
+    val reviews = remember { mutableStateListOf<Review>() }
+
+// Para mostrar snackbars
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
 
     Scaffold(
         bottomBar = {
             BottomBar(navController = nav, currentRoute = Route.Home.path)
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { innerPadding ->
 
@@ -86,7 +115,8 @@ fun ProductDetailScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(cs.background),
+                .background(cs.background)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
@@ -194,9 +224,43 @@ fun ProductDetailScreen(
                     fontWeight = FontWeight.Bold
                 )
 
+                Spacer(Modifier.height(8.dp))
+
+                // Rating con estrellas
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    (1..5).forEach { star ->
+                        IconButton(onClick = { rating = star }) {
+                            val icon = if (rating >= star) {
+                                Icons.Filled.Star
+                            } else {
+                                Icons.Outlined.StarBorder
+                            }
+
+                            Icon(
+                                imageVector = icon,
+                                contentDescription = "$star estrellas",
+                                tint = if (rating >= star) cs.primary else cs.onSurfaceVariant
+                            )
+                        }
+                    }
+
+                    if (rating > 0) {
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "$rating/5",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(8.dp))
+
                 OutlinedTextField(
-                    value = "",
-                    onValueChange = { /* TODO: en el futuro */ },
+                    value = comment,
+                    onValueChange = { comment = it },
                     label = { Text("Escribe tu reseña...") },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -208,6 +272,88 @@ fun ProductDetailScreen(
                     color = cs.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyMedium
                 )
+                Spacer(Modifier.height(12.dp))
+
+                Button(
+                    onClick = {
+                        if (rating == 0 || comment.isBlank()) {
+                            // Aviso de error si falta algo
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Por favor, selecciona una valoración y escribe un comentario."
+                                )
+                            }
+                        } else {
+                            // Guardar reseña en memoria
+                            reviews.add(Review(rating = rating, comment = comment))
+
+                            // Limpiar campos
+                            rating = 0
+                            comment = ""
+
+                            // Mostrar snackbar de éxito
+                            scope.launch {
+                                snackbarHostState.showSnackbar("¡Reseña enviada!")
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = cs.primary,
+                        contentColor = cs.onPrimary
+                    )
+                ) {
+                    Text("Enviar reseña")
+                }
+                Spacer(Modifier.height(16.dp))
+
+                if (reviews.isEmpty()) {
+                    Text(
+                        "Aún nadie ha realizado una reseña de este producto. ¡Puedes ser el primero!",
+                        color = cs.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                } else {
+                    Text(
+                        "Reseñas de otros usuarios",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.height(8.dp))
+
+                    reviews.forEach { review ->
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            color = cs.surfaceVariant
+                        ) {
+                            Column(Modifier.padding(8.dp)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    (1..5).forEach { star ->
+                                        Icon(
+                                            imageVector = if (review.rating >= star)
+                                                Icons.Filled.Star
+                                            else
+                                                Icons.Outlined.StarBorder,
+                                            contentDescription = null,
+                                            tint = cs.primary
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(4.dp))
+                                Text(
+                                    review.comment,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                    }
+                }
+
             }
         }
     }
